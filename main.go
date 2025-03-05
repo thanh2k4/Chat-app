@@ -1,29 +1,27 @@
 package main
 
 import (
-	"net/http"
+	"context"
+	"fmt"
+	"log"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
+	"github.com/thanh2k4/Chat-app/application"
 )
 
 func main() {
-	router := chi.NewRouter()
-	router.Use(middleware.Logger)
-	router.Get("/hello", handler)
-
-	server := &http.Server{
-		Addr:    ":8080",
-		Handler: router,
+	db := "postgres://postgres:0@localhost:5432/chat_app?sslmode=disable"
+	conn, err := pgx.Connect(context.Background(), db)
+	if err != nil {
+		log.Fatal("Error connecting to database: ", err)
 	}
 
-	err := server.ListenAndServe()
+	defer conn.Close(context.Background())
+	fmt.Println("Connected to database")
+	app := application.New()
+	err = app.Start(context.TODO())
 	if err != nil {
 		panic(err)
 	}
 
-}
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello, World!"))
 }
