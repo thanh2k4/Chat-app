@@ -1,6 +1,7 @@
 package security
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -31,6 +32,22 @@ func GenerateToken(userId string, cfg configs.Config) (string, string, error) {
 
 }
 
-func ValidateRefreshToken(tokenString string) (*jwt.Token, error) {
+func ValidateRefreshToken(tokenString string, cfg configs.Config) (*jwt.MapClaims, error) {
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(cfg.JWT.SecretRefreshKey), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return &claims, nil
+	}
+	return nil, nil
 
 }
