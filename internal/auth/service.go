@@ -1,12 +1,8 @@
 package auth
 
-type User struct {
-	UserID   string `json:"user_id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
+import "github.com/thanh2k4/Chat-app/internal/user"
 
-func AuthenticatedUser(username, password string) (*User, error) {
+func AuthenticatedUser(username, password string) (*user.User, error) {
 
 	return nil, nil
 }

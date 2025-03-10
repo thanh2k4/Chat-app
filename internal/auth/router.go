@@ -3,11 +3,11 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"github.com/thanh2k4/Chat-app/configs"
+	"github.com/thanh2k4/Chat-app/cmd/auth/config"
 )
 
 type AuthRouter struct {
-	Config      configs.Config
+	Config      config.Config
 	redisClient *redis.Client
 }
 

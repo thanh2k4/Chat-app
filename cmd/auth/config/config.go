@@ -1,4 +1,4 @@
-package configs
+package config
 
 import (
 	"os"
@@ -9,10 +9,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ServiceConfig struct {
-	Port int `yaml:"port"`
-}
-
 type Config struct {
 	Database struct {
 		Postgres postgres.PostgresConfig `yaml:"postgres"`
@@ -20,8 +16,8 @@ type Config struct {
 	} `yaml:"database"`
 
 	Server struct {
-		ServerPort map[string]string
-	} `yaml:"server"`
+		ServerPort string `yaml:"port"`
+	} `yaml:"http"`
 
 	JWT struct {
 		SecretRefreshKey   string        `yaml:"refresh_token_secret"`
@@ -31,8 +27,8 @@ type Config struct {
 	} `yaml:"jwt"`
 }
 
-func LoadConfig(path string) (*Config, error) {
-	file, err := os.ReadFile(path)
+func LoadConfig() (*Config, error) {
+	file, err := os.ReadFile("cmd/auth/config/config.yml")
 	if err != nil {
 		return nil, err
 	}

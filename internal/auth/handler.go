@@ -2,11 +2,11 @@ package auth
 
 import (
 	"context"
+	"github.com/thanh2k4/Chat-app/cmd/auth/config"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"github.com/thanh2k4/Chat-app/configs"
 	"github.com/thanh2k4/Chat-app/pkg/security"
 )
 
@@ -19,7 +19,7 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func RefreshHandler(cfg configs.Config, redisClient *redis.Client) gin.HandlerFunc {
+func RefreshHandler(cfg config.Config, redisClient *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req RefreshRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -54,18 +54,17 @@ func RefreshHandler(cfg configs.Config, redisClient *redis.Client) gin.HandlerFu
 	}
 }
 
-func LoginHandler(cfg configs.Config) gin.HandlerFunc {
+func LoginHandler(cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req LoginRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		user, err := AuthenticatedUser(req.Username, req.Password)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not authenticate user"})
-			return
-		}
-
+		//user, err := AuthenticatedUser(req.Username, req.Password)
+		//if err != nil {
+		//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not authenticate user"})
+		//	return
+		//}
 	}
 }

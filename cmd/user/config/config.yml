@@ -1,0 +1,16 @@
+app:
+  name: 'user-service'
+  version : '1.0.0'
+
+http:
+  host: '0.0.0.0'
+  port: 5003
+
+database:
+  postgres:
+    host: localhost
+    port: 5432
+    user: postgres
+    password: 0
+    database: chat_app
+    sslmode: disable

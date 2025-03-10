@@ -1,0 +1,19 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "internal/user/infras/postgres/query/query.sql"
+    schema: "db/migrations/000001_init_user.up.sql"
+    gen:
+      go:
+        package: "postgres"
+        out: "internal/user/infras/postgres"
+        emit_json_tags: true
+
+  - engine: "postgresql"
+    queries: "internal/chat/infras/postgres/query/query.sql"
+    schema: "db/migrations/000001_init_chat.up.sql"
+    gen:
+      go:
+        package: "postgres"
+        out: "internal/chat/infras/postgres"
+        emit_json_tags: true
