@@ -27,8 +27,8 @@ type Config struct {
 	} `yaml:"jwt"`
 }
 
-func LoadConfig() (*Config, error) {
-	file, err := os.ReadFile("cmd/auth/config/config.yml")
+func LoadConfig(path string) (*Config, error) {
+	file, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

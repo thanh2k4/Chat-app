@@ -1,23 +1,24 @@
-package config
+package api_gateway
 
 import (
-	"github.com/thanh2k4/Chat-app/pkg/database/postgres"
 	"gopkg.in/yaml.v3"
 	"os"
 )
 
 type Config struct {
-	Database struct {
-		Postgres postgres.PostgresConfig `yaml:"postgres"`
-	} `yaml:"database"`
-
 	Server struct {
 		ServerPort string `yaml:"port"`
 	} `yaml:"http"`
+	GRPC struct {
+		AuthHost string `yaml:"auth_host"`
+		UserHost string `yaml:"user_host"`
+		ChatHost string `yaml:"chat_host"`
+	} `yaml:"grpc"`
 }
 
 func LoadConfig() (*Config, error) {
-	file, err := os.ReadFile("cmd/chat/config/config.yml")
+	path := "cmd/api-gateway/config/config.yml"
+	file, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -26,6 +27,6 @@ func LoadConfig() (*Config, error) {
 	if err := yaml.Unmarshal(file, &cfg); err != nil {
 		return nil, err
 	}
-
 	return &cfg, nil
+
 }

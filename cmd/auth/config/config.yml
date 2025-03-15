@@ -4,7 +4,7 @@ app:
 
 http:
   host: '0.0.0.0'
-  port: 5001
+  port: 50051
 
 database:
   redis:
@@ -12,7 +12,13 @@ database:
     port: 6379
     password: ""
     database: 0
-
+  postgres:
+    host: localhost
+    port: 5432
+    user: postgres
+    password: 0
+    database: chat_app
+    sslmode: disable
 
 jwt:
   access_token_secret: 43e387b0e20d58453aa3b5c673b079e6d84039a20ae2b898ad6cfad40f9154c2fb203d990bc0bf3a93c570d82fd8f1ea98321026ba703111d5df0edf9038ec3c4bf9a12feb35e9a417321dc811397455f48d6d6ac42feed1981991596dc02e33456ebf2d4fb13311decf5804b589e1d7db86ee8a710edc1aadb7ccbba27fae36e777153fd3711dadf6c9e12b26ca400c891cb76f936d6331ddfb48014fbf93c6dc8460949718257ab5356c35b550a57f9565b8d648eb18c892d232a934c406028cb8f79e3b932c72bf6824ff165699d88c24c7eec8fb43a0cdcf9fa9d096e68baf69299fcea4e7c01151fee4f70b92ffb5c6688997f9301dbe9ee7b9042f3bff

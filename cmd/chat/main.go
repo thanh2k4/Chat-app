@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/thanh2k4/Chat-app/cmd/auth/config"
+	"github.com/thanh2k4/Chat-app/pkg/config"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +11,7 @@ import (
 func main() {
 
 	// Load the config
-	cfg, err := config.LoadConfig()
+	cfg, err := config.LoadConfig("cmd/chat/config/config.yaml")
 	if err != nil {
 		log.Fatalf("❗ Falied to load config: %v", err)
 	}

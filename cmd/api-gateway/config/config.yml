@@ -1,0 +1,12 @@
+app:
+  name: 'gateway-service'
+  version : '1.0.0'
+
+http:
+  host: '0.0.0.0'
+  port: 5000
+
+grpc:
+  auth_host: 5001
+  chat_host: 5002
+  user_host: 5003

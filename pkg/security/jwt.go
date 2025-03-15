@@ -2,13 +2,14 @@ package security
 
 import (
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/thanh2k4/Chat-app/pkg/config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/thanh2k4/Chat-app/configs"
 )
 
-func GenerateToken(userId string, cfg configs.Config) (string, string, error) {
+func GenerateToken(userId uuid.UUID, cfg config.Config) (string, string, error) {
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId": userId,
 		"exp":    time.Now().Add(cfg.JWT.RefreshTokenExpiry).Unix(),
@@ -32,7 +33,7 @@ func GenerateToken(userId string, cfg configs.Config) (string, string, error) {
 
 }
 
-func ValidateRefreshToken(tokenString string, cfg configs.Config) (*jwt.MapClaims, error) {
+func ValidateRefreshToken(tokenString string, cfg config.Config) (*jwt.MapClaims, error) {
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
