@@ -14,3 +14,8 @@ database:
     password: 0
     database: chat_app
     sslmode: disable
+  redis:
+    host: localhost
+    port: 6379
+    password: ""
+    database: 1

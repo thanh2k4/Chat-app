@@ -17,7 +17,7 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	path := "cmd/api-gateway/config/config.yml"
+	path := "cmd/api-api-gateway/config/config.yml"
 	file, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err

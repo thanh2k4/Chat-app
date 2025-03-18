@@ -2,66 +2,127 @@ package auth
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
+	"fmt"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/redis/go-redis/v9"
+	"github.com/thanh2k4/Chat-app/internal/auth/infras/postgres"
+	"github.com/thanh2k4/Chat-app/pkg/config"
+	"github.com/thanh2k4/Chat-app/pkg/security"
 	auth "github.com/thanh2k4/Chat-app/proto/gen"
-	"google.golang.org/grpc"
-	"net/http"
+	"time"
 )
 
-type AuthHandler struct {
-	authClient auth.AuthServiceClient
+type AuthServer struct {
+	auth.UnimplementedAuthServiceServer
+	Postgres    *postgres.Queries
+	RedisClient *redis.Client
+	Cfg         config.Config
 }
 
-func NewAuthHandler(authConn *grpc.ClientConn) *AuthHandler {
-	return &AuthHandler{
-		authClient: auth.NewAuthServiceClient(authConn),
-	}
-}
+func (s *AuthServer) Refresh(ctx context.Context, req *auth.RefreshRequest) (*auth.AuthResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
-func (h *AuthHandler) Register(c *gin.Context) {
-	var req auth.RegisterRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	res, err := h.authClient.RegisterHandler(context.Background(), &req)
+	claims, err := security.ValidateRefreshToken(req.RefreshToken, s.Cfg)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, fmt.Errorf("invalid refresh token: %v", err)
 	}
 
-	c.JSON(http.StatusOK, res)
+	userID := (*claims)["userId"].(string)
+	storedToken, err := s.RedisClient.Get(ctx, userID).Result()
+	if err != nil {
+		return nil, fmt.Errorf("refresh token not found in Redis: %v", err)
+	}
+
+	if storedToken != req.RefreshToken {
+		return nil, fmt.Errorf("refresh token does not match")
+	}
+
+	refreshToken, accessToken, err := security.GenerateToken(uuid.MustParse(userID), s.Cfg)
+	if err != nil {
+		return nil, fmt.Errorf("could not generate tokens: %v", err)
+	}
+
+	err = s.RedisClient.Set(ctx, userID, refreshToken, s.Cfg.JWT.RefreshTokenExpiry).Err()
+	if err != nil {
+		return nil, fmt.Errorf("could not store refresh token in Redis: %v", err)
+	}
+
+	return &auth.AuthResponse{
+		RefreshToken: refreshToken,
+		AccessToken:  accessToken,
+	}, nil
 }
 
-func (h *AuthHandler) RefreshToken(c *gin.Context) {
-	var req auth.RefreshRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
+func (s *AuthServer) Register(ctx context.Context, req *auth.RegisterRequest) (*auth.AuthResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
-	res, err := h.authClient.RefreshHandler(context.Background(), &req)
+	hashedPassword, err := security.Hash(req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
+		return nil, fmt.Errorf("could not hash password: %v", err)
 	}
 
-	c.JSON(http.StatusOK, res)
+	userID := uuid.New()
+
+	_, err = s.Postgres.GetUserByUsername(ctx, req.Username)
+	if err == nil {
+		return nil, fmt.Errorf("user with username %s already exists", req.Username)
+	}
+
+	_, err = s.Postgres.CreateUser(ctx, postgres.CreateUserParams{
+		ID:       pgtype.UUID{Bytes: userID, Valid: true},
+		Username: req.Username,
+		Password: string(hashedPassword),
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("could not create user in database: %v", err)
+	}
+
+	refreshToken, accessToken, err := security.GenerateToken(userID, s.Cfg)
+	if err != nil {
+		return nil, fmt.Errorf("could not generate tokens: %v", err)
+	}
+
+	err = s.RedisClient.Set(ctx, userID.String(), refreshToken, s.Cfg.JWT.RefreshTokenExpiry).Err()
+	if err != nil {
+		return nil, fmt.Errorf("could not store refresh token in Redis: %v", err)
+	}
+
+	return &auth.AuthResponse{
+		RefreshToken: refreshToken,
+		AccessToken:  accessToken,
+	}, nil
 }
 
-func (h *AuthHandler) Login(c *gin.Context) {
-	var req auth.LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
+func (s *AuthServer) Login(ctx context.Context, req *auth.LoginRequest) (*auth.AuthResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
 
-	res, err := h.authClient.LoginHandler(context.Background(), &req)
+	user, err := s.Postgres.GetUserByUsername(ctx, req.Username)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
+		return nil, fmt.Errorf("user not found: %v", err)
 	}
 
-	c.JSON(http.StatusOK, res)
+	err = security.VerifyPassword(user.Password, req.Password)
+	if err != nil {
+		return nil, fmt.Errorf("invalid password: %v", err)
+	}
+
+	refreshToken, accessToken, err := security.GenerateToken(uuid.UUID(user.ID.Bytes), s.Cfg)
+	if err != nil {
+		return nil, fmt.Errorf("could not generate tokens: %v", err)
+	}
+
+	err = s.RedisClient.Set(ctx, user.ID.String(), refreshToken, s.Cfg.JWT.RefreshTokenExpiry).Err()
+	if err != nil {
+		return nil, fmt.Errorf("could not store refresh token in Redis: %v", err)
+	}
+
+	return &auth.AuthResponse{
+		RefreshToken: refreshToken,
+		AccessToken:  accessToken,
+	}, nil
 }

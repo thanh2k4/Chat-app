@@ -1,10 +1,13 @@
 package main
 
 import (
+	"github.com/thanh2k4/Chat-app/internal/user"
 	"github.com/thanh2k4/Chat-app/pkg/config"
+	"github.com/thanh2k4/Chat-app/proto/gen"
+	"google.golang.org/grpc"
 	"log"
+	"net"
 
-	"github.com/gin-gonic/gin"
 	"github.com/thanh2k4/Chat-app/pkg/database/postgres"
 )
 
@@ -25,12 +28,16 @@ func main() {
 	log.Println("Connected to PostgreSQL successfully 🚀")
 
 	// Start the server
-	r := gin.Default()
-	serverPort := cfg.Server.ServerPort
-	log.Printf("Starting Auth Service on port %s", serverPort)
-	err = r.Run(":" + serverPort)
+	grpcServer := grpc.NewServer()
+	userServer := user.NewUserServer()
+	gen.RegisterUserServiceServer(grpcServer, userServer)
+	listener, err := net.Listen("tcp", ":"+cfg.Server.ServerPort)
 	if err != nil {
-		panic(err)
+		log.Fatalf("❗ Failed to listen: %v", err)
+	}
+	log.Printf("User Service is running on port %s", cfg.Server.ServerPort)
+	if err := grpcServer.Serve(listener); err != nil {
+		log.Fatalf("Failed to serve gRPC for User Service: %v", err)
 	}
 
 }

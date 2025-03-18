@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_package = "github.com/thanh2k4/Chat-app/proto/auth";
+option go_package = "github.com/thanh2k4/Chat-app/proto/gen";
 
 import "google/protobuf/empty.proto";
 

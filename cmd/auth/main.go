@@ -7,7 +7,7 @@ import (
 	"github.com/thanh2k4/Chat-app/pkg/config"
 	"github.com/thanh2k4/Chat-app/pkg/database/postgres"
 	"github.com/thanh2k4/Chat-app/pkg/database/redis"
-	auth2 "github.com/thanh2k4/Chat-app/proto/gen"
+	"github.com/thanh2k4/Chat-app/proto/gen"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -41,7 +41,8 @@ func main() {
 		Cfg:         *cfg,
 	}
 
-	auth2.RegisterAuthServiceServer(grpcServer, authServer)
+	gen.RegisterAuthServiceServer(grpcServer, authServer)
+
 	listener, err := net.Listen("tcp", ":"+cfg.Server.ServerPort)
 	if err != nil {
 		log.Fatalf("❗ Failed to listen: %v", err)
