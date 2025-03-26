@@ -1,8 +1,8 @@
 package api_gateway
 
 import (
-	"context"
-	"github.com/thanh2k4/Chat-app/internal/chat/infras/postgres"
+	"github.com/bufbuild/protovalidate-go"
+	"github.com/thanh2k4/Chat-app/pkg/config"
 	"github.com/thanh2k4/Chat-app/proto/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -11,24 +11,33 @@ import (
 
 type Client struct {
 	ChatClient gen.ChatServiceClient
+	UserClient gen.UserServiceClient
+	AuthClient gen.AuthServiceClient
+	Validator  protovalidate.Validator
 }
 
-func NewClient(chatAddress string) *Client {
-	conn, err := grpc.NewClient(chatAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewClient(cfg config.Config) *Client {
+	authConn, err := grpc.NewClient("localhost:"+cfg.GRPC.AuthServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("failed to connect to Auth Service: %v", err)
+	}
+
+	userConn, err := grpc.NewClient("localhost:"+cfg.GRPC.UserServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("failed to connect to User Service: %v", err)
+	}
+
+	chatConn, err := grpc.NewClient("localhost:"+cfg.GRPC.ChatServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to Chat Service: %v", err)
 	}
 
-	return &Client{ChatClient: gen.NewChatServiceClient(conn)}
-}
-func (c *Client) SendMessage(msg *postgres.ChatMessage) (*gen.ChatMessage, error) {
-	message := &gen.ChatMessage{
-		ChatId:   msg.ChatID.String(),
-		SenderId: msg.SenderID.String(),
-		Content:  msg.Content.String,
-		Type:     msg.Type,
-		MediaUrl: msg.MediaUrl.String,
-		Status:   msg.Status,
+	v, _ := protovalidate.New()
+
+	return &Client{
+		UserClient: gen.NewUserServiceClient(userConn),
+		ChatClient: gen.NewChatServiceClient(chatConn),
+		AuthClient: gen.NewAuthServiceClient(authConn),
+		Validator:  v,
 	}
-	return c.ChatClient.SendMessage(context.Background(), message)
 }

@@ -1,6 +1,6 @@
 -- name: CreateChat :one
 INSERT INTO chat.chats ( type, name, creator_id)
-VALUES ($1, $2, $3, )
+VALUES ($1, $2, $3)
     RETURNING *;
 
 -- name: GetChatByID :one
@@ -41,3 +41,6 @@ SELECT * FROM chat.messages WHERE chat_id = $1 AND id NOT IN (
 
 -- name: GetMemberByChatID :many
 SELECT user_id FROM chat.chat_members WHERE chat_id = $1 ;
+
+-- name: GetChatByUserID :many
+SELECT chat_id FROM chat.chat_members WHERE user_id = $1;

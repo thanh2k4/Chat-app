@@ -25,6 +25,12 @@ type Config struct {
 		AccessTokenExpiry  time.Duration `yaml:"access_token_expiry"`
 		RefreshTokenExpiry time.Duration `yaml:"refresh_token_expiry"`
 	} `yaml:"jwt"`
+
+	GRPC struct {
+		AuthServer string `yaml:"auth_host"`
+		ChatServer string `yaml:"chat_host"`
+		UserServer string `yaml:"user_host"`
+	} `yaml:"grpc"`
 }
 
 func LoadConfig(path string) (*Config, error) {

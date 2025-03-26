@@ -12,8 +12,8 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO auth.users (id, username, password)
-VALUES ($1, $2, $3)
+INSERT INTO auth.users ( id ,username, password)
+VALUES ($1, $2 , $3)
     RETURNING id, username, password, created_at, updated_at
 `
 

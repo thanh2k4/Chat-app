@@ -1,14 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "user.proto",
+    "title": "buf/validate/validate.proto",
     "version": "version not set"
   },
-  "tags": [
-    {
-      "name": "UserService"
-    }
-  ],
   "consumes": [
     "application/json"
   ],
@@ -42,37 +37,6 @@
             "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
-        }
-      }
-    },
-    "userUser": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "avatar": {
-          "type": "string"
-        },
-        "status": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "name": {
-          "type": "string"
-        },
-        "phone": {
-          "type": "string"
         }
       }
     }

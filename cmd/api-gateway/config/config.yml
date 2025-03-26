@@ -7,6 +7,6 @@ http:
   port: 5000
 
 grpc:
-  auth_host: 5001
-  chat_host: 5002
-  user_host: 5003
+  auth_host: 50051
+  chat_host: 50052
+  user_host: 50053

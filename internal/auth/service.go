@@ -10,6 +10,7 @@ import (
 	"github.com/thanh2k4/Chat-app/pkg/config"
 	"github.com/thanh2k4/Chat-app/pkg/security"
 	auth "github.com/thanh2k4/Chat-app/proto/gen"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"time"
 )
 
@@ -64,13 +65,14 @@ func (s *AuthServer) Register(ctx context.Context, req *auth.RegisterRequest) (*
 		return nil, fmt.Errorf("could not hash password: %v", err)
 	}
 
-	userID := uuid.New()
-
 	_, err = s.Postgres.GetUserByUsername(ctx, req.Username)
 	if err == nil {
 		return nil, fmt.Errorf("user with username %s already exists", req.Username)
 	}
-
+	userID, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse user ID: %v", err)
+	}
 	_, err = s.Postgres.CreateUser(ctx, postgres.CreateUserParams{
 		ID:       pgtype.UUID{Bytes: userID, Valid: true},
 		Username: req.Username,
@@ -125,4 +127,16 @@ func (s *AuthServer) Login(ctx context.Context, req *auth.LoginRequest) (*auth.A
 		RefreshToken: refreshToken,
 		AccessToken:  accessToken,
 	}, nil
+}
+
+func (s *AuthServer) Logout(ctx context.Context, req *auth.LogoutRequest) (*emptypb.Empty, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := s.RedisClient.Del(ctx, req.Id).Result()
+	if err != nil {
+		return &emptypb.Empty{}, fmt.Errorf("could not delete refresh token from Redis: %v", err)
+	}
+
+	return &emptypb.Empty{}, nil
 }

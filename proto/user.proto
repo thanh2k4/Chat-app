@@ -4,16 +4,13 @@ package user;
 option go_package = "github.com/thanh2k4/Chat-app/proto/gen";
 
 import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
 
 service UserService {
   rpc GetUser (GetUserRequest) returns (User);
   rpc CreateUser (CreateUserRequest) returns (User);
   rpc UpdateUser (UpdateUserRequest) returns (User);
-
 }
-
-
-
 
 message GetUserRequest {
   string id = 1;
@@ -21,31 +18,33 @@ message GetUserRequest {
 
 message UpdateUserRequest {
   string id = 1;
-  string username = 2;
-  string email = 3;
-  string password = 4;
-  string avatar = 5;
-  string status = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  string email = 2;
+  string avatar = 3;
+  string status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  string name = 7;
+  string phone = 8;
 }
 
 message CreateUserRequest{
-  string username = 1;
+  string id = 1;
   string email = 2;
-  string password = 3;
-  string avatar = 4;
-  string status = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp updated_at = 7;
+  string avatar = 3;
+  string status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  string name = 7;
+  string phone = 8;
 }
 
 message User{
   string id = 1;
-  string username = 2;
-  string email = 3;
-  string password = 4;
-  string avatar = 5;
-  string status = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
+  string email = 2;
+  string avatar = 3;
+  string status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  string name = 7;
+  string phone = 8;
 }

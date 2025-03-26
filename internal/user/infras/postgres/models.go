@@ -19,7 +19,7 @@ type UserServiceFriend struct {
 type UserServiceUser struct {
 	ID        pgtype.UUID      `json:"id"`
 	FullName  string           `json:"full_name"`
-	Email     string           `json:"email"`
+	Email     pgtype.Text      `json:"email"`
 	Phone     pgtype.Text      `json:"phone"`
 	Avatar    pgtype.Text      `json:"avatar"`
 	Status    string           `json:"status"`

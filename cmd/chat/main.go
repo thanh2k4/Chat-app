@@ -16,7 +16,7 @@ import (
 func main() {
 
 	// Load the config
-	cfg, err := config.LoadConfig("cmd/chat/config/config.yaml")
+	cfg, err := config.LoadConfig("cmd/chat/config/config.yml")
 	if err != nil {
 		log.Fatalf("❗ Falied to load config: %v", err)
 	}
@@ -40,7 +40,7 @@ func main() {
 	chatServer := chat.NewChatServer()
 	gen.RegisterChatServiceServer(grpcServer, chatServer)
 	go func() {
-		listener, err := net.Listen("tcp", cfg.Server.ServerPort)
+		listener, err := net.Listen("tcp", ":"+cfg.Server.ServerPort)
 		if err != nil {
 			log.Fatalf("❗ Failed to listen: %v", err)
 		}

@@ -1,20 +1,27 @@
-package api_gateway
+package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
+	apigateway "github.com/thanh2k4/Chat-app/internal/api-gateway"
+	"github.com/thanh2k4/Chat-app/internal/api-gateway/router"
+	"github.com/thanh2k4/Chat-app/pkg/config"
 
 	"log"
 )
 
 func main() {
-	cfg, err := LoadConfig()
+	cfg, err := config.LoadConfig("cmd/api-gateway/config/config.yml")
 	if err != nil {
 		log.Fatalf("❗ Falied to load config: %v", err)
 	}
 
-	r := gin.Default()
+	client := apigateway.NewClient(*cfg)
+
+	r := router.SetupAPIGatewayRoutes(client)
+
 	err = r.Run(":" + cfg.Server.ServerPort)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("API Gateway Service is running on port " + cfg.Server.ServerPort + "...")
 }

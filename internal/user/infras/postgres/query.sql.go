@@ -52,7 +52,7 @@ INSERT INTO user_service.users (id,full_name, email, phone, avatar, status) VALU
 type CreateUserParams struct {
 	ID       pgtype.UUID `json:"id"`
 	FullName string      `json:"full_name"`
-	Email    string      `json:"email"`
+	Email    pgtype.Text `json:"email"`
 	Phone    pgtype.Text `json:"phone"`
 	Avatar   pgtype.Text `json:"avatar"`
 	Status   string      `json:"status"`
@@ -130,7 +130,7 @@ const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, full_name, email, phone, avatar, status, created_at, updated_at FROM user_service.users WHERE email = $1 LIMIT 1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (UserServiceUser, error) {
+func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (UserServiceUser, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i UserServiceUser
 	err := row.Scan(
@@ -237,7 +237,7 @@ UPDATE user_service.users SET full_name = $2, email = $3, phone = $4, avatar = $
 type UpdateUserByIDParams struct {
 	ID       pgtype.UUID `json:"id"`
 	FullName string      `json:"full_name"`
-	Email    string      `json:"email"`
+	Email    pgtype.Text `json:"email"`
 	Phone    pgtype.Text `json:"phone"`
 	Avatar   pgtype.Text `json:"avatar"`
 	Status   string      `json:"status"`

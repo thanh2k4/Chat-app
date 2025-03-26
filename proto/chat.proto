@@ -4,6 +4,7 @@ package chat;
 option go_package = "github.com/thanh2k4/Chat-app/proto/gen";
 
 import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
 
 service ChatService {
   rpc SendMessage ( ChatMessage) returns ( ChatMessage);
@@ -31,17 +32,17 @@ message ChatGetRequest {
 
 message Chat {
   string id = 1;
-  string type = 2;
-  string name = 3;
-  string avatar = 4;
+  string type = 2 ;
+  string name = 3 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 50];
+  string avatar = 4 ;
   string creator_id = 5;
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp updated_at = 7;
 }
 
 message ChatCreateRequest {
-  string type = 1;
-  string name = 2;
+  string type = 1 ;
+  string name = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 50];
   string avatar = 3;
   string creator_id = 4;
   google.protobuf.Timestamp created_at = 5;
@@ -52,10 +53,10 @@ message ChatMessage {
   string id = 1;
   string chat_id = 2;
   string sender_id = 3;
-  string content = 4;
-  string type = 5;
+  string content = 4 ;
+  string type = 5 ;
   string media_url = 6;
-  string status = 7;
+  string status = 7 ;
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
 }

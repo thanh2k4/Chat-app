@@ -45,25 +45,19 @@ func (q *Queries) AddChatMember(ctx context.Context, arg AddChatMemberParams) (C
 }
 
 const createChat = `-- name: CreateChat :one
-INSERT INTO chat.chats (id, type, name, creator_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO chat.chats ( type, name, creator_id)
+VALUES ($1, $2, $3)
     RETURNING id, type, name, creator_id, created_at, updated_at
 `
 
 type CreateChatParams struct {
-	ID        pgtype.UUID `json:"id"`
 	Type      string      `json:"type"`
 	Name      pgtype.Text `json:"name"`
 	CreatorID pgtype.UUID `json:"creator_id"`
 }
 
 func (q *Queries) CreateChat(ctx context.Context, arg CreateChatParams) (ChatChat, error) {
-	row := q.db.QueryRow(ctx, createChat,
-		arg.ID,
-		arg.Type,
-		arg.Name,
-		arg.CreatorID,
-	)
+	row := q.db.QueryRow(ctx, createChat, arg.Type, arg.Name, arg.CreatorID)
 	var i ChatChat
 	err := row.Scan(
 		&i.ID,
@@ -92,6 +86,30 @@ func (q *Queries) GetChatByID(ctx context.Context, id pgtype.UUID) (ChatChat, er
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const getChatByUserID = `-- name: GetChatByUserID :many
+SELECT chat_id FROM chat.chat_members WHERE user_id = $1
+`
+
+func (q *Queries) GetChatByUserID(ctx context.Context, userID pgtype.UUID) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, getChatByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.UUID
+	for rows.Next() {
+		var chat_id pgtype.UUID
+		if err := rows.Scan(&chat_id); err != nil {
+			return nil, err
+		}
+		items = append(items, chat_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getChatMembers = `-- name: GetChatMembers :many

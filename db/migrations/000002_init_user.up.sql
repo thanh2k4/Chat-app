@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE user_service.users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     full_name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE ,
     phone TEXT UNIQUE,
     avatar TEXT DEFAULT '',
     status TEXT NOT NULL CHECK (status IN ('active', 'inactive', 'banned')),
