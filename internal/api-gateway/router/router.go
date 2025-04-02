@@ -20,6 +20,7 @@ func SetupAPIGatewayRoutes(client *apigateway.Client) *gin.Engine {
 	r.POST("/auth/login", handler.LoginHandler(client))
 	r.POST("/auth/refresh", handler.RefreshHandler(client))
 	r.POST("/auth/logout", handler.LogoutHandler(client))
+	r.PUT("/auth", handler.UpdateAuthHandler(client))
 
 	// Chat Routes
 	r.GET("/chats/:id", handler.GetChatHandler(client))

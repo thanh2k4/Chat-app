@@ -1,0 +1,100 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 0
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD" , "pg_isready"]
+    ports:
+      - "5432:5432"
+    networks:
+      - chat-network
+
+  api-gateway:
+    build:
+      context: docker
+      dockerfile: ./docker/Dockerfile-api-gateway
+    image: chat-app-api-gateway
+    environment:
+      APP_NAME: "api-gateway service"
+      GRPC_AUTH_HOST: 50051
+      GRPC_CHAT_HOST: 50052
+      GRPC_USER_HOST: 50053
+    ports:
+      - "5000:5000"
+    depends_on:
+      - auth
+      - chat
+      - user
+    networks:
+      - chat-network
+
+  auth:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-auth
+    image: chat-app-auth
+    environment:
+      APP_NAME: "auth service"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 0
+      DB_NAME: postgres
+    ports:
+      - "50051:50051"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chat-network
+
+  chat:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-chat
+    image: chat-app-chat
+    environment:
+      APP_NAME: "chat service"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 0
+      DB_NAME: postgres
+    ports:
+      - "50052:50052"
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chat-network
+
+  user:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-user
+    image: chat-app-user
+    environment:
+      APP_NAME: "user service"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 0
+      DB_NAME: postgres
+    ports:
+      - "50053:50053"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chat-network
+
+
+networks:
+  chat-network:

@@ -26,6 +26,9 @@ func RegisterHandler(client *apigateway.Client) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
+		_, err = client.UserClient.CreateUser(context.Background(), &gen.CreateUserRequest{
+			Id: req.Id,
+		})
 		c.SetCookie("access_token", resp.AccessToken, 900, "/", "localhost", true, true)
 		c.JSON(http.StatusOK, resp)
 	}
@@ -85,5 +88,27 @@ func LogoutHandler(client *apigateway.Client) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"message": "logged out"})
+	}
+}
+
+func UpdateAuthHandler(client *apigateway.Client) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req gen.UpdateAuthRequest
+		req.Id = c.GetString("userID")
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if err := client.Validator.Validate(&req); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		_, err := client.AuthClient.UpdateAuth(context.Background(), &req)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Updated user successfully"})
 	}
 }

@@ -12,6 +12,13 @@ service AuthService {
   rpc Refresh (RefreshRequest) returns (AuthResponse);
   rpc Login (LoginRequest) returns (AuthResponse);
   rpc Logout ( LogoutRequest ) returns (google.protobuf.Empty);
+  rpc UpdateAuth( UpdateAuthRequest ) returns (google.protobuf.Empty);
+}
+
+message UpdateAuthRequest {
+  string id = 1;
+  string username = 2 [(buf.validate.field).string.min_len = 5, (buf.validate.field).string.max_len = 20];
+  string password = 3 [(buf.validate.field).string.min_len = 6, (buf.validate.field).string.max_len = 20];
 }
 
 message LogoutRequest {

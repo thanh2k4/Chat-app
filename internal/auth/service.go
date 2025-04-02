@@ -140,3 +140,19 @@ func (s *AuthServer) Logout(ctx context.Context, req *auth.LogoutRequest) (*empt
 
 	return &emptypb.Empty{}, nil
 }
+
+func (s *AuthServer) UpdateAuth(ctx context.Context, req *auth.UpdateAuthRequest) (*emptypb.Empty, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	userId := uuid.MustParse(req.Id)
+	err := s.Postgres.UpdateAuthUserByID(ctx, postgres.UpdateAuthUserByIDParams{
+		ID:       pgtype.UUID{Bytes: userId, Valid: true},
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		return &emptypb.Empty{}, fmt.Errorf("could not update user in database: %v", err)
+	}
+
+	return &emptypb.Empty{}, nil
+}

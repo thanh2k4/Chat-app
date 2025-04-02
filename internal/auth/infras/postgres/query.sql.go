@@ -52,3 +52,19 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (AuthU
 	)
 	return i, err
 }
+
+const updateAuthUserByID = `-- name: UpdateAuthUserByID :exec
+UPDATE auth.users SET username = $2, password = $3
+WHERE id = $1
+`
+
+type UpdateAuthUserByIDParams struct {
+	ID       pgtype.UUID `json:"id"`
+	Username string      `json:"username"`
+	Password string      `json:"password"`
+}
+
+func (q *Queries) UpdateAuthUserByID(ctx context.Context, arg UpdateAuthUserByIDParams) error {
+	_, err := q.db.Exec(ctx, updateAuthUserByID, arg.ID, arg.Username, arg.Password)
+	return err
+}
