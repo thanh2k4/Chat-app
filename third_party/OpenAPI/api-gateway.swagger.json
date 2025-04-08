@@ -1,0 +1,403 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "API Gateway",
+    "version": "version not set"
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "password"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 20
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6,
+                  "maxLength": 20
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Register",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "username",
+                "password",
+                "name"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "minLength": 5,
+                  "maxLength": 20
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6,
+                  "maxLength": 20
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 50
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "phone": {
+                  "type": "string",
+                  "pattern": "^\\+?[1-9]\\d{1,14}$"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registration successful",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Logout",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout successful"
+          }
+        }
+      }
+    },
+    "/auth": {
+      "put": {
+        "summary": "Update user",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 50
+                },
+                "email": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "phone": {
+                  "type": "string",
+                  "pattern": "^\\+?[1-9]\\d{1,14}$"
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 6,
+                  "maxLength": 20
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User updated successfully"
+          }
+        }
+      }
+    },
+    "/chats/{id}": {
+      "get": {
+        "summary": "Get chat by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat retrieved successfully",
+            "schema": {
+              "$ref": "#/definitions/Chat"
+            }
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        }
+      }
+    },
+    "/chats" : {
+      "post": {
+        "summary": "Create a new chat",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Chat"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Chat created successfully",
+            "schema": {
+              "$ref": "#/definitions/Chat"
+            }
+          }
+        }
+      }
+    },
+    "/chats/users" : {
+      "get": {
+        "summary": "Get user chat",
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Chat"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chats/{id}/messages": {
+      "get": {
+        "summary": "Get messages by chat ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Messages retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Message"
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Send a message",
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Message sent successfully",
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Chat": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "private",
+            "group"
+          ]
+        },
+        "name" : {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "creator_id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Message"
+          }
+        }
+      }
+    },
+    "Message": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "chat_id": {
+          "type": "string"
+        },
+        "sender_id": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "image",
+            "video",
+            "file"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "sent",
+            "delivered",
+            "read"
+          ]
+        },
+        "media_url": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
+

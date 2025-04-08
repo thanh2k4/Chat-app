@@ -1,0 +1,93 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Socket",
+    "version": "version not set"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "ws"
+  ],
+  "paths": {
+    "/ws": {
+      "get": {
+        "summary": "WebSocket connection",
+        "description": "Establish a WebSocket connection to the server.",
+        "responses": {
+          "101": {
+            "description": "Switching Protocols"
+          }
+        }
+      }
+    },
+    "/messages": {
+      "post": {
+        "summary": "Send a message",
+        "description": "Send a message to the server.",
+        "parameters": [
+          {
+            "name": "message",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message sent successfully"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Message": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "chat_id": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "sender_id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "image",
+            "video"
+          ]
+        },
+        "media_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "sent",
+            "delivered",
+            "read"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

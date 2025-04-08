@@ -30,7 +30,7 @@ func RegisterHandler(client *apigateway.Client) gin.HandlerFunc {
 			Id: req.Id,
 		})
 		c.SetCookie("access_token", resp.AccessToken, 900, "/", "localhost", true, true)
-		c.JSON(http.StatusOK, resp)
+		c.JSON(http.StatusOK, resp.RefreshToken)
 	}
 }
 
@@ -51,7 +51,7 @@ func LoginHandler(client *apigateway.Client) gin.HandlerFunc {
 			return
 		}
 		c.SetCookie("access_token", resp.AccessToken, 900, "/", "localhost", true, true)
-		c.JSON(http.StatusOK, resp)
+		c.JSON(http.StatusOK, resp.RefreshToken)
 	}
 }
 
@@ -72,7 +72,7 @@ func RefreshHandler(client *apigateway.Client) gin.HandlerFunc {
 			return
 		}
 		c.SetCookie("access_token", resp.AccessToken, 900, "/", "localhost", true, true)
-		c.JSON(http.StatusOK, resp)
+		c.JSON(http.StatusOK, resp.RefreshToken)
 	}
 }
 
