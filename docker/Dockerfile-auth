@@ -17,7 +17,7 @@ FROM scratch
 
 EXPOSE 50051
 
-COPY --from=builder /app/cmd/auth/config/config.yml /
+COPY --from=builder /app/cmd/auth/config /cmd/auth/config
 COPY --from=builder /app/db/migrations /db/migrations
 COPY --from=builder /bin/app /app
 CMD ["/app"]

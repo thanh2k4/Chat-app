@@ -12,5 +12,5 @@ database:
     port: 5432
     user: postgres
     password: 0
-    database: chat_app
+    database: postgres
     sslmode: disable

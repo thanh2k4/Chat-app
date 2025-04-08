@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
+	"os"
 )
 
 type Client struct {
@@ -17,17 +18,32 @@ type Client struct {
 }
 
 func NewClient(cfg config.Config) *Client {
-	authConn, err := grpc.NewClient("localhost:"+cfg.GRPC.AuthServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// Connect to the Auth Service
+	authHost := os.Getenv("GRPC_AUTH_HOST")
+	if authHost == "" {
+		authHost = "localhost"
+	}
+	authConn, err := grpc.NewClient(authHost+":"+cfg.GRPC.AuthServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to Auth Service: %v", err)
 	}
 
-	userConn, err := grpc.NewClient("localhost:"+cfg.GRPC.UserServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// Connect to the User Service
+	userHost := os.Getenv("GRPC_USER_HOST")
+	if userHost == "" {
+		userHost = "localhost"
+	}
+	userConn, err := grpc.NewClient(userHost+":"+cfg.GRPC.UserServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to User Service: %v", err)
 	}
 
-	chatConn, err := grpc.NewClient("localhost:"+cfg.GRPC.ChatServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// Connect to the Chat Service
+	chatHost := os.Getenv("GRPC_CHAT_HOST")
+	if chatHost == "" {
+		chatHost = "localhost"
+	}
+	chatConn, err := grpc.NewClient(userHost+":"+cfg.GRPC.ChatServer, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect to Chat Service: %v", err)
 	}

@@ -17,7 +17,7 @@ FROM scratch
 
 EXPOSE 50052 8080
 
-COPY --from=builder /app/cmd/chat/config/config.yml /
+COPY --from=builder /app/cmd/chat/config /cmd/chat/config
 COPY --from=builder /app/db/migrations /db/migrations
 COPY --from=builder /bin/app /app
 CMD ["/app"]

@@ -15,6 +15,28 @@ services:
     networks:
       - chat-network
 
+  migrate:
+    image: migrate/migrate:latest
+    container_name: migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./db/migrations:/migrations
+    command:
+      ["-path", "/migrations" , "-database" , "postgres://postgres:0@postgres:5432/postgres?sslmode=disable" , "up"]
+    networks:
+      - chat-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - chat-network
+
   api-gateway:
     build:
       context: .
@@ -22,9 +44,9 @@ services:
     image: chat-app-api-gateway
     environment:
       APP_NAME: "api-gateway service"
-      GRPC_AUTH_HOST: 50051
-      GRPC_CHAT_HOST: 50052
-      GRPC_USER_HOST: 50053
+      GRPC_AUTH_HOST: auth
+      GRPC_CHAT_HOST: chat
+      GRPC_USER_HOST: user
     ports:
       - "5000:5000"
     depends_on:
@@ -35,6 +57,7 @@ services:
       - chat-network
 
   auth:
+    container_name: auth
     build:
       context: .
       dockerfile: ./docker/Dockerfile-auth
@@ -46,6 +69,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: 0
       DB_NAME: postgres
+      REDIS_HOST: redis
     ports:
       - "50051:50051"
     depends_on:
@@ -55,6 +79,7 @@ services:
       - chat-network
 
   chat:
+    container_name: chat
     build:
       context: .
       dockerfile: ./docker/Dockerfile-chat
@@ -65,7 +90,8 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: 0
-      DB_NAME: postgres
+      DB_NAME:
+      REDIS_HOST: redis
     ports:
       - "50052:50052"
       - "8080:8080"
@@ -76,6 +102,7 @@ services:
       - chat-network
 
   user:
+    container_name: user
     build:
       context: .
       dockerfile: ./docker/Dockerfile-user
@@ -87,6 +114,7 @@ services:
       DB_USER: postgres
       DB_PASSWORD: 0
       DB_NAME: postgres
+      REDIS_HOST: redis
     ports:
       - "50053:50053"
     depends_on:

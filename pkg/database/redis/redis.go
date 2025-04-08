@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -14,8 +15,13 @@ type RedisConfig struct {
 }
 
 func NewRedisDB(cfg RedisConfig) *redis.Client {
+	redisHost := os.Getenv("REDIS_HOST")
+	if redisHost == "" {
+		redisHost = cfg.Host
+	}
+
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+		Addr:     fmt.Sprintf("%s:%d", redisHost, cfg.Port),
 		Password: cfg.Password,
 		DB:       cfg.DB,
 	})
